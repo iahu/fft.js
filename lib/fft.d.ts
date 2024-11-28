@@ -1,14 +1,14 @@
 export = FFT;
-declare function FFT(size: any): void;
+
 declare class FFT {
-    constructor(size: any);
-    size: number;
-    table: any[];
-    fromComplexArray(complex: any, storage: any): any;
-    createComplexArray(): any[];
-    toComplexArray(input: any, storage: any): any;
-    completeSpectrum(spectrum: any): void;
-    transform(out: any, data: any): void;
-    realTransform(out: any, data: any): void;
-    inverseTransform(out: any, data: any): void;
+constructor(size: number);
+size: number;
+table: number[];
+fromComplexArray(complex: number[], storage?: number[]): number[];
+createComplexArray(): number[];
+toComplexArray(input: number[], storage?: number[]): number[];
+completeSpectrum(spectrum: number[]): void;
+transform(out: number[], data: number[]): void;
+realTransform(out: number[], data: number[]): void;
+inverseTransform(out: number[], data: number[]): void;
 }
