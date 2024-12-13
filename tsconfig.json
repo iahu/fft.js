@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "tsBuildInfoFile": "node_modules/.tmp/tsconfig.tsbuildinfo",
+
+    /* Modules */
+    "module": "ESNext",
+
+    /* Emit */
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["lib"]
+}

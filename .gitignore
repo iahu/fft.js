@@ -4,3 +4,7 @@ npm-debug.log
 *.log
 *.pdf
 *.gz
+*.lock
+.DS_Store
+package-lock.json
+*.lock

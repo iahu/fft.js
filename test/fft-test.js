@@ -1,16 +1,13 @@
-'use strict';
-
-const assert = require('assert');
-const external = require('fft');
-const FFT = require('../');
+import assert from 'assert';
+import external from 'fft';
+import FFT from '../dist/fft.js';
 
 function fixRoundEqual(actual, expected) {
   function fixRound(r) {
     return Math.round(r * 1000) / 1000;
   }
 
-  assert.strictEqual(actual.map(fixRound).join(':'),
-                     expected.map(fixRound).join(':'));
+  assert.strictEqual(actual.map(fixRound).join(':'), expected.map(fixRound).join(':'));
 }
 
 describe('FFT.js', () => {
@@ -56,93 +53,75 @@ describe('FFT.js', () => {
   it('should convert to complex array', () => {
     const f = new FFT(4);
 
-    assert.deepEqual(f.toComplexArray([ 1, 2, 3, 4 ]),
-                     [ 1, 0, 2, 0, 3, 0, 4, 0 ]);
+    assert.deepEqual(f.toComplexArray([1, 2, 3, 4]), [1, 0, 2, 0, 3, 0, 4, 0]);
   });
 
   it('should convert from complex array', () => {
     const f = new FFT(4);
 
-    assert.deepEqual(f.fromComplexArray(f.toComplexArray([ 1, 2, 3, 4 ])),
-                     [ 1, 2, 3, 4 ]);
-  });
-
-  it('should throw on invalid transform inputs', () => {
-    const f = new FFT(8);
-    const output = f.createComplexArray();
-
-    assert.throws(() => {
-      f.transform(output, output);
-    }, /must be different/);
+    assert.deepEqual(f.fromComplexArray(f.toComplexArray([1, 2, 3, 4])), [1, 2, 3, 4]);
   });
 
   it('should transform trivial radix-2 case', () => {
     const f = new FFT(2);
 
-    const out = f.createComplexArray();
-    let data = f.toComplexArray([ 0.5, -0.5 ]);
-    f.transform(out, data);
-    assert.deepEqual(out, [ 0, 0, 1, 0 ]);
+    let data = f.toComplexArray([0.5, -0.5]);
+    let out = f.transform(data);
+    assert.deepEqual(out, [0, 0, 1, 0]);
 
-    data = f.toComplexArray([ 0.5, 0.5 ]);
-    f.transform(out, data);
-    assert.deepEqual(out, [ 1, 0, 0, 0 ]);
+    data = f.toComplexArray([0.5, 0.5]);
+    out = f.transform(data);
+    assert.deepEqual(out, [1, 0, 0, 0]);
 
     // Linear combination
-    data = f.toComplexArray([ 1, 0 ]);
-    f.transform(out, data);
-    assert.deepEqual(out, [ 1, 0, 1, 0 ]);
+    data = f.toComplexArray([1, 0]);
+    out = f.transform(data);
+    assert.deepEqual(out, [1, 0, 1, 0]);
   });
 
   it('should transform trivial case', () => {
     const f = new FFT(4);
 
-    const out = f.createComplexArray();
-    let data = f.toComplexArray([ 1, 0.707106, 0, -0.707106 ]);
-    f.transform(out, data);
-    fixRoundEqual(out, [ 1, 0, 1, -1.414, 1, 0, 1, 1.414 ]);
+    let data = f.toComplexArray([1, 0.707106, 0, -0.707106]);
+    let out = f.transform(data);
+    fixRoundEqual(out, [1, 0, 1, -1.414, 1, 0, 1, 1.414]);
 
-    data = f.toComplexArray([ 1, 0, -1, 0 ]);
-    f.transform(out, data);
-    assert.deepEqual(out, [ 0, 0, 2, 0, 0, 0, 2, 0 ]);
+    data = f.toComplexArray([1, 0, -1, 0]);
+    out = f.transform(data);
+    assert.deepEqual(out, [0, 0, 2, 0, 0, 0, 2, 0]);
   });
 
   it('should inverse-transform', () => {
     const f = new FFT(4);
 
-    const out = f.createComplexArray();
-    const data = f.toComplexArray([ 1, 0.707106, 0, -0.707106 ]);
-    f.transform(out, data);
-    fixRoundEqual(out, [ 1, 0, 1, -1.414, 1, 0, 1, 1.414 ]);
-    f.inverseTransform(data, out);
-    assert.deepEqual(f.fromComplexArray(data), [ 1, 0.707106, 0, -0.707106 ]);
+    const data = f.toComplexArray([1, 0.707106, 0, -0.707106]);
+    let out = f.transform(data);
+    fixRoundEqual(out, [1, 0, 1, -1.414, 1, 0, 1, 1.414]);
+    out = f.inverseTransform(data);
+    assert.deepEqual(f.fromComplexArray(data), [1, 0.707106, 0, -0.707106]);
   });
 
   it('should transform big recursive case', () => {
     const input = [];
-    for (let i = 0; i < 256; i++)
-      input.push(i);
+    for (let i = 0; i < 256; i++) input.push(i);
 
     const f = new FFT(input.length);
 
-    const out = f.createComplexArray();
     let data = f.toComplexArray(input);
-    f.transform(out, data);
-    f.inverseTransform(data, out);
+    let out = f.transform(data);
+    data = f.inverseTransform(out);
     fixRoundEqual(f.fromComplexArray(data), input);
   });
 
   it('should transform big recursive radix-2 case', () => {
     const input = [];
-    for (let i = 0; i < 128; i++)
-      input.push(i);
+    for (let i = 0; i < 128; i++) input.push(i);
 
     const f = new FFT(input.length);
 
-    const out = f.createComplexArray();
     let data = f.toComplexArray(input);
-    f.transform(out, data);
-    f.inverseTransform(data, out);
+    const out = f.transform(data);
+    data = f.inverseTransform(out);
     fixRoundEqual(f.fromComplexArray(data), input);
   });
 
@@ -151,15 +130,13 @@ describe('FFT.js', () => {
       const ex = new external.complex(size, false);
 
       const input = new Float64Array(size * 2);
-      for (let i = 0; i < input.length; i += 2)
-        input[i] = generator(i >>> 1);
+      for (let i = 0; i < input.length; i += 2) input[i] = generator(i >>> 1);
       const expected = new Float64Array(size * 2);
 
       ex.simple(expected, input, 'complex');
 
       const self = new FFT(size);
-      const out = self.createComplexArray();
-      self.transform(out, input);
+      const out = self.transform(input);
       fixRoundEqual(out, expected);
     });
   }
@@ -174,13 +151,10 @@ describe('FFT.js', () => {
         input[i] = generator(i >>> 1);
         realInput[i >>> 1] = input[i];
       }
-      const expected = complex.createComplexArray();
-
-      complex.transform(expected, input, 'complex');
+      const expected = complex.transform(input, 'complex');
 
       const self = new FFT(size);
-      const out = self.createComplexArray();
-      self.realTransform(out, realInput);
+      const out = self.realTransform(realInput);
       self.completeSpectrum(out);
       fixRoundEqual(out, expected);
     });
@@ -201,8 +175,7 @@ describe('FFT.js', () => {
       ex.simple(expected, input, 'complex');
 
       const self = new FFT(size);
-      const out = self.createComplexArray();
-      self.realTransform(out, realInput);
+      const out = self.realTransform(realInput);
       self.completeSpectrum(out);
       fixRoundEqual(out, expected);
     });
@@ -221,7 +194,7 @@ describe('FFT.js', () => {
       return (Math.random() - 0.5) * 2;
     }
 
-    const sizes = [ 2, 4, 8, 16, 512, 1024, 2048, 4096 ];
+    const sizes = [2, 4, 8, 16, 512, 1024, 2048, 4096];
     sizes.forEach((size) => {
       describe(`size=${size}`, () => {
         function every(generator) {

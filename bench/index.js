@@ -1,19 +1,20 @@
-'use strict';
+import FFT from '../dist/fft.js';
+import jensnockert from 'fft';
+import dspjs from 'dsp.js';
+import drom from 'fourier';
+import fourierTransform from 'fourier-transform';
+import benchmark from 'benchmark';
 
-const FFT = require('../');
 const external = {
-  jensnockert: require('fft'),
-  dspjs: require('dsp.js'),
-  drom: require('fourier'),
-  fourierTransform: require('fourier-transform')
+  jensnockert,
+  dspjs,
+  drom,
+  fourierTransform,
 };
-const benchmark = require('benchmark');
 
 function regexFilter(value) {
-  if (value !== undefined && value.length !== 0)
-    return new RegExp(value, 'ig');
-  else
-    return /./g;
+  if (value !== undefined && value.length !== 0) return new RegExp(value, 'ig');
+  else return /./g;
 }
 
 /*eslint-disable no-undef */
@@ -22,16 +23,14 @@ const filter1 = regexFilter(process.argv[3]);
 /*eslint-enable no-undef */
 
 function addFiltered(suite, name, body) {
-  if (name.match(filter1) === null)
-    return;
+  if (name.match(filter1) === null) return;
 
   suite.add(name, body);
 }
 
 function createInput(size) {
   const res = new Array(size);
-  for (let i = 0; i < res.length; i++)
-    res[i] = Math.random() * 2 - 1;
+  for (let i = 0; i < res.length; i++) res[i] = Math.random() * 2 - 1;
   return res;
 }
 
@@ -49,10 +48,9 @@ function addSelf(suite, size) {
   const f = new FFT(size);
   const input = createInput(f.size);
   const data = f.toComplexArray(input);
-  const out = f.createComplexArray();
 
   addFiltered(suite, 'fft.js', () => {
-    f.transform(out, data);
+    f.transform(data);
   });
 }
 
@@ -84,7 +82,7 @@ function addDrom(suite, size) {
   const stdlib = {
     Math: Math,
     Float32Array: Float32Array,
-    Float64Array: Float64Array
+    Float64Array: Float64Array,
   };
   const f = new external.drom.custom[`fft_f64_${size}_asm`](stdlib, null, heap);
 
@@ -110,10 +108,9 @@ function addRealSelf(suite, size) {
   const f = new FFT(size);
   const input = createInput(f.size);
   const data = f.toComplexArray(input);
-  const out = f.createComplexArray();
 
   addFiltered(suite, 'fft.js', () => {
-    f.realTransform(out, data);
+    f.realTransform(data);
   });
 }
 
@@ -147,18 +144,19 @@ const benchmarks = [
   { title: 'realTransform size=2048', suite: realTransform(2048) },
   { title: 'realTransform size=4096', suite: realTransform(4096) },
   { title: 'realTransform size=8192', suite: realTransform(8192) },
-  { title: 'realTransform size=16384', suite: realTransform(16384) }
+  { title: 'realTransform size=16384', suite: realTransform(16384) },
 ];
 
 /* eslint-disable no-console */
 benchmarks.forEach((bench) => {
-  if (bench.title.match(filter0) === null)
-    return;
+  if (bench.title.match(filter0) === null) return;
   console.log('===== %s =====', bench.title);
-  bench.suite.on('cycle', (event) => {
-    console.log('    '+ String(event.target));
-  }).on('complete', function() {
-    console.log('  Fastest is ' + this.filter('fastest').map('name'));
-  });
+  bench.suite
+    .on('cycle', (event) => {
+      console.log('    ' + String(event.target));
+    })
+    .on('complete', function () {
+      console.log('  Fastest is ' + this.filter('fastest').map('name'));
+    });
   bench.suite.run();
 });
